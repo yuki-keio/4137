@@ -5,7 +5,7 @@ interface ComboEffectProps {
   onComplete: () => void;
 }
 
-const PARTICLE_COUNT = 30;
+const PARTICLE_COUNT = 10; // さらに減らして10個に
 const DURATION = 1200; // ms
 
 export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) => {
@@ -47,11 +47,11 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) =
   if (!isAnimating || !count) {
     return null;
   }
-  
+
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       {/* Combo Text */}
-      <div 
+      <div
         className="text-6xl font-extrabold text-white font-fira"
         style={{
           animation: `combo-text-pop ${DURATION}ms ease-out forwards`,
@@ -66,7 +66,7 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) =
         {particles.map(p => (
           <div
             key={p.id}
-            className={`absolute top-1/2 left-1/2 w-3 h-3 ${p.color} ${p.shape}`}
+            className={`absolute top-1/2 left-1/2 w-8 h-8 ${p.color} ${p.shape}`}
             style={{
               ...p.style,
               animationName: 'particle-burst',
