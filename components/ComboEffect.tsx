@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 interface ComboEffectProps {
   count: number | null;
+  comboKey: number; // コンボの一意識別子
   onComplete: () => void;
 }
 
-const PARTICLE_COUNT = 10; // さらに減らして10個に
+const PARTICLE_COUNT = 10;
 const DURATION = 1200; // ms
 
-export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) => {
+export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onComplete }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
@@ -19,8 +20,11 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) =
         onComplete();
       }, DURATION);
       return () => clearTimeout(timer);
+    } else {
+      // countがnullの場合はアニメーションを停止
+      setIsAnimating(false);
     }
-  }, [count, onComplete]);
+  }, [count, comboKey, onComplete]);
 
   const particles = useMemo(() => {
     if (!isAnimating) return [];
@@ -42,7 +46,7 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) =
         shape: Math.random() > 0.5 ? 'rounded-full' : 'rounded-sm',
       };
     });
-  }, [isAnimating]);
+  }, [isAnimating, comboKey]);
 
   if (!isAnimating || !count) {
     return null;
@@ -52,6 +56,7 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) =
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       {/* Combo Text */}
       <div
+        key={`combo-text-${comboKey}`}
         className="text-6xl font-extrabold text-white font-fira"
         style={{
           animation: `combo-text-pop ${DURATION}ms ease-out forwards`,
@@ -62,10 +67,10 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, onComplete }) =
       </div>
 
       {/* Particles */}
-      <div className="absolute w-full h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div key={`particles-${comboKey}`} className="absolute w-full h-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         {particles.map(p => (
           <div
-            key={p.id}
+            key={`particle-${comboKey}-${p.id}`}
             className={`absolute top-1/2 left-1/2 w-8 h-8 ${p.color} ${p.shape}`}
             style={{
               ...p.style,

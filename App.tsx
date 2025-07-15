@@ -13,19 +13,20 @@ const App: React.FC = () => {
   // Game state management
   const [gameState, setGameState] = useState<GameState>('playing');
   const [showInstructions, setShowInstructions] = useState(false);
-  
+
   // Game data
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME_LIMIT);
   const [highScore, setHighScore] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
-  
+
   // Control/Trigger states
   const [gameKey, setGameKey] = useState(Date.now());
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeBonusFeedback, setTimeBonusFeedback] = useState<{ amount: number; count: number } | null>(null);
   const [comboEffectTrigger, setComboEffectTrigger] = useState<number | null>(null);
+  const [comboKey, setComboKey] = useState(0);
 
   const nextLevelThreshold = LEVEL_THRESHOLDS[level - 1];
 
@@ -44,7 +45,7 @@ const App: React.FC = () => {
     if (timeLeft <= 0) {
       setGameState('gameOver');
       setIsTimerRunning(false);
-      
+
       // Check for new high score
       if (score > highScore) {
         setIsNewHighScore(true);
@@ -60,7 +61,7 @@ const App: React.FC = () => {
 
     return () => clearInterval(timer);
   }, [gameState, timeLeft, isTimerRunning, score, highScore]);
-  
+
   // Level up logic
   useEffect(() => {
     if (gameState !== 'playing' || !isTimerRunning) return;
@@ -86,6 +87,7 @@ const App: React.FC = () => {
     setScore(prev => prev + points);
     if (cellCount >= 6) {
       setComboEffectTrigger(cellCount);
+      setComboKey(prev => prev + 1); // 新しいコンボキーを生成
     }
   }, []);
 
@@ -105,13 +107,14 @@ const App: React.FC = () => {
     setIsTimerRunning(false); // Timer starts on first interaction
     setTimeBonusFeedback(null);
     setComboEffectTrigger(null);
+    setComboKey(0); // コンボキーもリセット
     setIsNewHighScore(false);
   }, []);
 
   const currentLevelStartScore = level > 1 ? LEVEL_THRESHOLDS[level - 2] : 0;
   const pointsForNextLevel = nextLevelThreshold - currentLevelStartScore;
   const progressInCurrentLevel = score - currentLevelStartScore;
-  
+
   const scorePercentage = nextLevelThreshold && pointsForNextLevel > 0
     ? Math.min((progressInCurrentLevel / pointsForNextLevel) * 100, 100)
     : 100;
@@ -120,6 +123,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-900 text-slate-200 flex flex-col items-center justify-center p-2 md:p-4 selection:bg-cyan-300 selection:text-slate-900">
       <ComboEffect
         count={comboEffectTrigger}
+        comboKey={comboKey}
         onComplete={() => setComboEffectTrigger(null)}
       />
       <div className="w-full max-w-lg mx-auto flex flex-col items-center">
@@ -146,63 +150,63 @@ const App: React.FC = () => {
         </header>
 
         <main className="w-full relative">
-            <div className="mb-4 p-3 rounded-lg bg-slate-800/50">
-              <div className="flex items-center gap-x-4 w-full">
-                {/* Left: Level */}
-                <div className="flex items-center flex-shrink-0">
-                  <span className="font-bold text-lg text-white-400">Lv.{level}</span>
-                </div>
+          <div className="mb-4 p-3 rounded-lg bg-slate-800/50">
+            <div className="flex items-center gap-x-4 w-full">
+              {/* Left: Level */}
+              <div className="flex items-center flex-shrink-0">
+                <span className="font-bold text-lg text-white-400">Lv.{level}</span>
+              </div>
 
-                {/* Center: Progress Bar + Score */}
-                <div className="flex-grow flex items-center gap-x-3">
-                  <div className="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-cyan-400 to-fuchsia-500 h-full rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${scorePercentage}%` }}
-                    />
-                  </div>
-                  <div className="text-sm text-slate-400 font-fira font-normal whitespace-nowrap">
-                    <span className="text-slate-200 font-medium">{score}</span>
-                    <span className="px-1">/</span>
-                    <span className="text-cyan-300">{nextLevelThreshold ? nextLevelThreshold : 'MAX'}</span>
-                  </div>
+              {/* Center: Progress Bar + Score */}
+              <div className="flex-grow flex items-center gap-x-3">
+                <div className="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-cyan-400 to-fuchsia-500 h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${scorePercentage}%` }}
+                  />
                 </div>
-                
-                {/* Right: Timer */}
-                <div className="relative flex items-center flex-shrink-0">
-                  <Timer className="w-6 h-6 text-red-400" />
-                  <span className={`font-bold text-2xl text-white font-fira w-10 text-right ${timeLeft <= 10 ? 'text-red-400 animate-pulse-timer' : ''}`}>{timeLeft}</span>
-                   {timeBonusFeedback && Array.from({ length: timeBonusFeedback.count }).map((_, i) => (
-                    <div 
-                      key={i}
-                      className="absolute left-1/2 top-0 text-lg md:text-xl font-bold text-green-400 pointer-events-none animate-time-bonus"
-                      style={{ 
-                        textShadow: '0 0 8px #4ade80',
-                        animationDelay: `${i * 200}ms`
-                      }}
-                      onAnimationEnd={() => {
-                        if (i === timeBonusFeedback.count - 1) {
-                            setTimeBonusFeedback(null);
-                        }
-                      }}
-                    >
-                      +{timeBonusFeedback.amount}
-                    </div>
-                  ))}
+                <div className="text-sm text-slate-400 font-fira font-normal whitespace-nowrap">
+                  <span className="text-slate-200 font-medium">{score}</span>
+                  <span className="px-1">/</span>
+                  <span className="text-cyan-300">{nextLevelThreshold ? nextLevelThreshold : 'MAX'}</span>
                 </div>
               </div>
+
+              {/* Right: Timer */}
+              <div className="relative flex items-center flex-shrink-0">
+                <Timer className="w-6 h-6 text-red-400" />
+                <span className={`font-bold text-2xl text-white font-fira w-10 text-right ${timeLeft <= 10 ? 'text-red-400 animate-pulse-timer' : ''}`}>{timeLeft}</span>
+                {timeBonusFeedback && Array.from({ length: timeBonusFeedback.count }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute left-1/2 top-0 text-lg md:text-xl font-bold text-green-400 pointer-events-none animate-time-bonus"
+                    style={{
+                      textShadow: '0 0 8px #4ade80',
+                      animationDelay: `${i * 200}ms`
+                    }}
+                    onAnimationEnd={() => {
+                      if (i === timeBonusFeedback.count - 1) {
+                        setTimeBonusFeedback(null);
+                      }
+                    }}
+                  >
+                    +{timeBonusFeedback.amount}
+                  </div>
+                ))}
+              </div>
             </div>
-            <GameBoard key={gameKey} onAddScore={handleAddScore} onGameStart={handleGameStart} />
-             {gameState === 'gameOver' && (
-               <GameEndScreen 
-                 score={score}
-                 level={level}
-                 highScore={highScore}
-                 isNewHighScore={isNewHighScore}
-                 onReset={startGame}
-               />
-             )}
-            {showInstructions && <Instructions onClose={() => setShowInstructions(false)} />}
+          </div>
+          <GameBoard key={gameKey} onAddScore={handleAddScore} onGameStart={handleGameStart} />
+          {gameState === 'gameOver' && (
+            <GameEndScreen
+              score={score}
+              level={level}
+              highScore={highScore}
+              isNewHighScore={isNewHighScore}
+              onReset={startGame}
+            />
+          )}
+          {showInstructions && <Instructions onClose={() => setShowInstructions(false)} />}
         </main>
       </div>
     </div>
