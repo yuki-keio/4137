@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4137 - Webパズルゲーム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Noto Sans JP', sans-serif;
+      }
+      .font-fira {
+        font-family: 'Fira Code', monospace;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+      .animate-pop-up {
+        animation: popUp 0.8s ease-out forwards;
+      }
+      .animate-cell-clear-spin {
+        /* 数字が自然に回転して消えるアニメーション */
+        animation: cell-clear-spin 0.4s ease-in-out forwards;
+        transform-style: preserve-3d; /* 3D変形を有効化 */
+      }
+      .animate-shine-effect {
+        /* 選択された瞬間に一度だけ光が走る */
+        animation: slotReelShine 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+      }
+      .animate-time-bonus {
+        animation: time-bonus-pop 1s ease-out forwards;
+      }
+      .animate-slide-down {
+        animation: slide-down 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+      .hint-glow::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit; /* セルの角丸に合わせる */
+        background: radial-gradient(circle, currentColor, transparent 75%);
+        animation: pulse-glow 2.5s infinite ease-in-out;
+        z-index: 0; /* 数字(z-index:1)の後ろに配置 */
+        pointer-events: none;
+      }
+      .text-glow {
+        text-shadow: 0 0 8px currentColor;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes popUp {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+      }
+      @keyframes time-bonus-pop {
+        0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+        100% { transform: translate(-50%, -40px) scale(1.1); opacity: 0; }
+      }
+      @keyframes cell-clear-spin {
+        from {
+          transform: rotate(0deg) scale(1);
+          opacity: 1;
+        }
+        to {
+          transform: rotate(90deg) scale(0);
+          opacity: 0;
+        }
+      }
+      @keyframes drawLine {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes slotReelShine {
+        from {
+          transform: translateX(-150%) skewX(-25deg);
+        }
+        to {
+          transform: translateX(250%) skewX(-25deg);
+        }
+      }
+      @keyframes pulse-glow {
+        0%, 100% {
+          opacity: 0;
+          transform: scale(0.7);
+        }
+        50% {
+          opacity: 0.25;
+          transform: scale(1);
+        }
+      }
+      @keyframes slide-down {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes neon-glow {
+        from {
+          box-shadow: 0 0 5px rgba(56, 189, 248, 0.2),
+                      0 0 8px rgba(56, 189, 248, 0.1);
+        }
+        to {
+          box-shadow: 0 0 10px rgba(56, 189, 248, 0.9),
+                      0 0 25px rgba(56, 189, 248, 0.7);
+        }
+      }
+      @keyframes neon-glow-text {
+        from {
+          text-shadow: none;
+        }
+        to {
+          text-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 8px rgba(56, 189, 248, 0.9);
+        }
+      }
+      .is-glowing-even, .is-glowing-odd {
+        animation: neon-glow 0.8s infinite alternate ease-in-out;
+      }
+      .is-glowing-odd {
+        animation-delay: -0.8s;
+      }
+      .is-glowing-even > span, .is-glowing-odd > span {
+        animation: neon-glow-text 0.8s infinite alternate ease-in-out;
+      }
+      .is-glowing-odd > span {
+        animation-delay: -0.8s;
+      }
+      @keyframes combo-sparkle {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg) translateX(0px) scale(1);
+          opacity: 1;
+        }
+        70% {
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(var(--end-rotate, 0deg)) translateX(var(--end-translate, 0px)) scale(0);
+          opacity: 0;
+        }
+      }
+      @keyframes combo-text-pop {
+        0% { transform: scale(0.5); opacity: 0; }
+        20% { transform: scale(1.2); opacity: 1; }
+        80% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1); opacity: 0; }
+      }
+      @keyframes particle-burst {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 1;
+        }
+        100% {
+          transform: var(--transform-end) scale(1);
+          opacity: 0;
+        }
+      }
+      @keyframes pulse-timer {
+        0%, 100% {
+          transform: scale(1);
+          text-shadow: 0 0 8px currentColor;
+        }
+        50% {
+          transform: scale(1.1);
+          text-shadow: 0 0 16px currentColor, 0 0 24px currentColor;
+        }
+      }
+      .animate-pulse-timer {
+        animation: pulse-timer 1.2s infinite ease-in-out;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-900 text-slate-200 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
