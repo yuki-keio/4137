@@ -16,16 +16,13 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     const [theme, setTheme] = useState<Theme>(() => {
-        // システムの設定またはローカルストレージから初期テーマを取得
+        // ローカルストレージから保存されたテーマを取得
         const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme;
         if (savedTheme) {
             return savedTheme;
         }
-        // システムのダークモード設定を確認
-        if (typeof window !== 'undefined' && window.matchMedia) {
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        return 'dark'; // デフォルトはダークモード
+        // デフォルトはダークモード
+        return 'dark';
     });
 
     useEffect(() => {
