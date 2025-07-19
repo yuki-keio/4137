@@ -7,8 +7,26 @@ interface ComboEffectProps {
   onComplete: () => void;
 }
 
-const PARTICLE_COUNT = 10;
+const BASE_PARTICLE_COUNT = 8;
+const MAX_PARTICLE_COUNT = 20;
 const DURATION = 1200; // ms
+
+// パーティクルタイプの事前定義（パフォーマンス向上）
+const PARTICLE_TYPES = {
+  light: [
+    { color: 'bg-yellow-400', shadow: 'shadow-md shadow-yellow-400/40' },
+    { color: 'bg-cyan-400', shadow: 'shadow-md shadow-cyan-400/40' },
+    { color: 'bg-pink-400', shadow: 'shadow-md shadow-pink-400/40' }
+  ],
+  dark: [
+    { color: 'bg-yellow-500', shadow: 'shadow-lg shadow-yellow-500/50' },
+    { color: 'bg-cyan-500', shadow: 'shadow-lg shadow-cyan-500/50' },
+    { color: 'bg-pink-500', shadow: 'shadow-lg shadow-pink-500/50' }
+  ]
+};
+
+const SIZES = ['w-2 h-2', 'w-3 h-3', 'w-4 h-4'];
+const SHAPES = ['rounded-full', 'rounded-lg', 'rounded-sm'];
 
 export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onComplete }) => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -29,29 +47,38 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onCom
   }, [count, comboKey, onComplete]);
 
   const particles = useMemo(() => {
-    if (!isAnimating) return [];
-    return Array.from({ length: PARTICLE_COUNT }).map((_, i) => {
-      const angle = Math.random() * 360;
-      const distance = 150 + Math.random() * 100;
-      const rotation = Math.random() * 720 - 360;
-      // テーマに応じてパーティクルカラーを設定
-      const color = theme === 'light'
-        ? (Math.random() > 0.5 ? 'bg-cyan-400' : 'bg-sky-500')
-        : (Math.random() > 0.5 ? 'bg-yellow-400' : 'bg-amber-500');
-      const delay = Math.random() * 200; // ms
+    if (!isAnimating || !count) return [];
+    
+    // コンボ数に応じてパーティクル数を調整（パフォーマンス最適化）
+    const particleCount = Math.min(
+      BASE_PARTICLE_COUNT + Math.floor(count / 10), 
+      MAX_PARTICLE_COUNT
+    );
+    
+    const particleTypes = PARTICLE_TYPES[theme];
+    
+    return Array.from({ length: particleCount }).map((_, i) => {
+      // ランダム値を事前計算して再利用
+      const typeIndex = i % particleTypes.length;
+      const sizeIndex = i % SIZES.length;
+      const shapeIndex = Math.floor(i / 3) % SHAPES.length;
+      
+      const angle = (360 / particleCount) * i + (Math.random() - 0.5) * 60; // より均等に分散
+      const distance = 120 + (i % 3) * 40; // 距離を段階的に
+      const delay = (i * 50) % 300; // より均等な遅延
 
       return {
         id: i,
         style: {
-          '--transform-end': `translate(-50%, -50%) rotate(${angle}deg) translateX(${distance}px) rotate(${rotation}deg)`,
+          '--end-rotate': `${angle}deg`,
+          '--end-translate': `${distance}px`,
           animationDelay: `${delay}ms`,
           animationDuration: `${DURATION - delay}ms`,
-        } as React.CSSProperties,
-        color,
-        shape: Math.random() > 0.5 ? 'rounded-full' : 'rounded-sm',
+        } as React.CSSProperties & { [key: string]: string },
+        className: `absolute top-1/2 left-1/2 ${SIZES[sizeIndex]} ${particleTypes[typeIndex].color} ${SHAPES[shapeIndex]} ${particleTypes[typeIndex].shadow}`,
       };
     });
-  }, [isAnimating, comboKey, theme]);
+  }, [isAnimating, comboKey, theme, count]);
 
   if (!isAnimating || !count) {
     return null;
@@ -82,12 +109,12 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onCom
         {particles.map(p => (
           <div
             key={`particle-${comboKey}-${p.id}`}
-            className={`absolute top-1/2 left-1/2 w-8 h-8 ${p.color} ${p.shape}`}
+            className={p.className}
             style={{
               ...p.style,
-              animationName: 'particle-burst',
+              animationName: 'combo-sparkle',
               animationFillMode: 'forwards',
-              animationTimingFunction: 'cubic-bezier(0.1, 0.8, 0.7, 1)',
+              animationTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             }}
           />
         ))}
