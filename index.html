@@ -16,8 +16,54 @@
     <meta name="theme-color" content="#1e293b"> 
 
     <style>
+      /* テーマカラー変数 */
+      :root {
+        --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+      }
+
+      :root.light {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-accent: #0284c7;
+        --border-color: #e2e8f0;
+        --shadow-color: rgba(0, 0, 0, 0.01);
+        --gradient-start: #0ea5e9;
+        --gradient-end: #8b5cf6;
+        --number-4-color: #dc2626;
+        --number-1-color: #0369a1;
+        --number-3-color: #d97706;
+        --number-7-color: #7c3aed;
+        --glow-color: #6365f128;
+        --combo-shadow-color: #6365f125;
+      }
+      
+      :root.dark {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-tertiary: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-accent: #06b6d4;
+        --border-color: #475569;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        --gradient-start: #22d3ee;
+        --gradient-end: #c084fc;
+        --number-4-color: #f87171;
+        --number-1-color: #7dd3fc;
+        --number-3-color: #fde047;
+        --number-7-color: #c084fc;
+        --glow-color: #38bdf8;
+        --combo-shadow-color: #facc15;
+      }
+
       body {
         font-family: 'Noto Sans JP', sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        transition: var(--transition-theme);
       }
       .font-fira {
         font-family: 'Fira Code', monospace;
@@ -43,7 +89,8 @@
       .animate-slide-down {
         animation: slide-down 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
       }
-      .hint-glow::before {
+      /* ダークモード用のヒントグロー */
+      :root.dark .hint-glow::before {
         content: '';
         position: absolute;
         inset: 0;
@@ -53,8 +100,27 @@
         z-index: 0; /* 数字(z-index:1)の後ろに配置 */
         pointer-events: none;
       }
-      .text-glow {
+      
+      /* ライトモード用のヒントグロー（発光なし） */
+      :root.light .hint-glow::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(circle, currentColor, transparent 90%);
+        animation: pulse-subtle 2.5s infinite ease-in-out;
+        z-index: 0;
+        pointer-events: none;
+      }
+      
+      /* ダークモード用のテキストグロー */
+      :root.dark .text-glow {
         text-shadow: 0 0 8px currentColor;
+      }
+      
+      /* ライトモード用のテキストグロー（なし） */
+      :root.light .text-glow {
+        text-shadow: none;
       }
       @keyframes fadeIn {
         from { opacity: 0; }
@@ -101,6 +167,17 @@
           transform: scale(1);
         }
       }
+      
+      @keyframes pulse-subtle {
+        0%, 100% {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        50% {
+          opacity: 0.1;
+          transform: scale(1);
+        }
+      }
       @keyframes slide-down {
         from {
           transform: translateY(-100%);
@@ -111,39 +188,70 @@
           opacity: 1;
         }
       }
-      @keyframes neon-glow {
+      /* ダークモード用のネオングロー */
+      :root.dark .is-glowing-even,
+      :root.dark .is-glowing-odd {
+        animation: neon-glow-dark 0.8s infinite alternate ease-in-out;
+      }
+      :root.dark .is-glowing-even > span,
+      :root.dark .is-glowing-odd > span {
+        animation: neon-glow-text-dark 0.8s infinite alternate ease-in-out;
+      }
+      
+      /* ライトモード用の控えめなグロー */
+      :root.light .is-glowing-even,
+      :root.light .is-glowing-odd {
+        animation: subtle-glow-light 0.8s infinite alternate ease-in-out;
+      }
+      :root.light .is-glowing-even > span,
+      :root.light .is-glowing-odd > span {
+        animation: none; /* テキストには影をつけない */
+      }
+
+      @keyframes neon-glow-dark {
         from {
-          box-shadow: 0 0 5px rgba(56, 189, 248, 0.2),
-                      0 0 8px rgba(56, 189, 248, 0.1);
+          box-shadow: 0 0 5px var(--glow-color, rgba(56, 189, 248, 0.2)),
+                      0 0 8px var(--glow-color, rgba(56, 189, 248, 0.1));
         }
         to {
-          box-shadow: 0 0 10px rgba(56, 189, 248, 0.9),
-                      0 0 25px rgba(56, 189, 248, 0.7);
+          box-shadow: 0 0 10px var(--glow-color, rgba(56, 189, 248, 0.9)),
+                      0 0 25px var(--glow-color, rgba(56, 189, 248, 0.7));
         }
       }
-      @keyframes neon-glow-text {
+      
+      @keyframes neon-glow-text-dark {
         from {
           text-shadow: none;
         }
         to {
-          text-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 8px rgba(56, 189, 248, 0.9);
+          text-shadow: 0 0 4px rgba(255, 255, 255, 0.9), 0 0 8px var(--glow-color, rgba(56, 189, 248, 0.9));
         }
       }
-      .is-glowing-even, .is-glowing-odd {
-        animation: neon-glow 0.8s infinite alternate ease-in-out;
+      
+      @keyframes subtle-glow-light {
+        from {
+          box-shadow: none;
+        }
+        to {
+          box-shadow: none;
+        }
       }
       .is-glowing-odd {
         animation-delay: -0.8s;
       }
-      .is-glowing-even > span, .is-glowing-odd > span {
-        animation: neon-glow-text 0.8s infinite alternate ease-in-out;
+      :root.dark .is-glowing-odd {
+        animation-delay: -0.8s;
       }
-      .is-glowing-odd > span {
+      :root.dark .is-glowing-odd > span {
         animation-delay: -0.8s;
       }
       @keyframes combo-sparkle {
         0% {
-          transform: translate(-50%, -50%) rotate(0deg) translateX(0px) scale(1);
+                    transform: translate(-50%, -50%) rotate(0deg) translateX(0px) scale(1);
+          opacity: 1;
+
+ transform: translate(-50%, -50%) rotate(0deg) translateX(0px) scale(1);
+          opacity: 0;
           opacity: 1;
         }
         70% {
@@ -170,7 +278,17 @@
           opacity: 0;
         }
       }
-      @keyframes pulse-timer {
+      /* ダークモード用のタイマーパルス */
+      :root.dark .animate-pulse-timer {
+        animation: pulse-timer-dark 1.2s infinite ease-in-out;
+      }
+      
+      /* ライトモード用のタイマーパルス（発光なし） */
+      :root.light .animate-pulse-timer {
+        animation: pulse-timer-light 1.2s infinite ease-in-out;
+      }
+      
+      @keyframes pulse-timer-dark {
         0%, 100% {
           transform: scale(1);
           text-shadow: 0 0 8px currentColor;
@@ -180,8 +298,16 @@
           text-shadow: 0 0 16px currentColor, 0 0 24px currentColor;
         }
       }
-      .animate-pulse-timer {
-        animation: pulse-timer 1.2s infinite ease-in-out;
+      
+      @keyframes pulse-timer-light {
+        0%, 100% {
+          transform: scale(1);
+          text-shadow: none;
+        }
+        50% {
+          transform: scale(1.05);
+          text-shadow: none;
+        }
       }
     </style>
   <script type="importmap">
@@ -195,7 +321,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-slate-900 text-slate-200 antialiased">
+  <body class="dark antialiased">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

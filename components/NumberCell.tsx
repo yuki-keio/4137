@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { CellData } from '../types';
 import { NUMBER_COLORS } from '../constants';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface NumberCellProps {
   cell: CellData;
@@ -12,23 +13,25 @@ interface NumberCellProps {
 
 export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelected, isHinted, selectionIndex, comboLength }) => {
   const colorClass = NUMBER_COLORS[cell.value] || 'text-slate-300';
-  
+  const { theme } = useTheme();
+
   const textShadowStyle: React.CSSProperties = isSelected
     ? {}
-    : { textShadow: '0 0 8px currentColor' };
+    : theme === 'light'
+      ? {} // ライトモードではテキストシャドウなし
+      : { textShadow: '0 0 8px currentColor' }; // ダークモードのみテキストシャドウ
 
   const shineAnimationDelay = (selectionIndex !== undefined) ? `${selectionIndex * 120}ms` : '0s';
 
   const comboParticles = useMemo(() => {
     if (!isSelected || comboLength < 6) return [];
-    
+
     // エレガントにするためにパーティクルの数と飛距離を調整
-    const particleCount = Math.min(Math.max(0, comboLength - 5), 8);
-    
+    const particleCount = Math.min(Math.max(0, comboLength - 4), 8);
+
     return Array.from({ length: particleCount }).map((_, i) => {
       const angle = Math.random() * 360;
-      // 飛距離を短くして、より自然な感じに
-      const distance = 40 + Math.random() * 30;
+      const distance = 50 + Math.random() * 30;
       // アニメーション時間を短くして、素早いエフェクトに
       const duration = 600 + Math.random() * 400; // ms
       const delay = Math.random() * 150; // ms
@@ -47,58 +50,75 @@ export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelec
         } as React.CSSProperties,
       };
     });
-  }, [isSelected, comboLength]);
+  }, [isSelected, comboLength, theme]);
 
   // Base classes
   const cellClasses = [
-    'relative', 'w-full', 'h-full', 'flex', 'items-center', 'justify-center',
+    'relative', 'w-full', 'h-full', 'flex', 'items-center', 'z-10', 'justify-center',
     'rounded-md', 'text-2xl', 'md:text-3xl', 'font-bold', 'transition-all', 'duration-300',
     'ease-out', 'font-fira', 'overflow-hidden'
   ];
-  
-  // 状態に応じたクラスを追加
+
+  // 状態に応じたクラスとスタイルを追加
+  let cellStyle: React.CSSProperties = {};
+
   if (cell.state === 'clearing') {
     // 消えるときのアニメーションを適用
     cellClasses.push('animate-cell-clear-spin');
   } else if (cell.state === 'new') {
-    cellClasses.push(colorClass, 'bg-slate-800', 'animate-slide-down');
+    cellClasses.push(colorClass, 'animate-slide-down');
+    cellStyle.backgroundColor = 'var(--bg-secondary)';
   } else if (isSelected) {
     cellClasses.push('bg-sky-400', 'text-slate-900');
     const isOdd = selectionIndex !== undefined && selectionIndex % 2 !== 0;
-    cellClasses.push(isOdd ? 'is-glowing-odd' : 'is-glowing-even'); 
+    cellClasses.push(isOdd ? 'is-glowing-odd' : 'is-glowing-even');
   } else {
-    cellClasses.push(colorClass, 'bg-slate-800', 'hover:bg-slate-700'); 
+    cellClasses.push(colorClass);
+    cellStyle.backgroundColor = 'var(--bg-secondary)';
+    cellStyle.transition = 'background-color 0.3s ease';
   }
 
   if (isHinted && !isSelected && cell.state !== 'clearing') {
     cellClasses.push('hint-glow');
   }
-  
+
   return (
     <div
       className="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center p-0.5 md:p-1 select-none [perspective:250px]"
     >
-      <div 
+      <div
         className={cellClasses.join(' ')}
+        style={cellStyle}
+        onMouseEnter={(e) => {
+          if (!isSelected && cell.state === 'idle') {
+            (e.target as HTMLElement).style.filter = 'brightness(1.2)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isSelected && cell.state === 'idle') {
+            (e.target as HTMLElement).style.filter = 'brightness(1)';
+          }
+        }}
       >
         {isSelected && (
-           <div
-             className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shine-effect pointer-events-none z-0"
-             style={{ animationDelay: shineAnimationDelay }}
-           />
+          <div
+            className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shine-effect pointer-events-none z-0"
+            style={{ animationDelay: shineAnimationDelay }}
+          />
         )}
-        <span 
-            style={textShadowStyle}
-            className="relative z-[1]"
+        <span
+          style={textShadowStyle}
+          className="relative z-[1]"
         >
-            {cell.value}
+          {cell.value}
         </span>
       </div>
       {/* 長いコンボの時にパーティクルエフェクトを表示 */}
       {comboParticles.map(p => (
         <div
           key={p.id}
-          className="absolute top-1/2 left-1/2 w-1 h-1 bg-yellow-200 rounded-full pointer-events-none"
+          className={`absolute top-1/2 left-1/2 w-[6px] h-[6px] z-0 rounded-full pointer-events-none ${theme === 'light' ? 'bg-cyan-400' : 'bg-yellow-400/75'
+            }`}
           style={p.style}
         />
       ))}

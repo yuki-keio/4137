@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ComboEffectProps {
   count: number | null;
@@ -11,6 +12,7 @@ const DURATION = 1200; // ms
 
 export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onComplete }) => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (count !== null && count >= 6) {
@@ -32,7 +34,10 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onCom
       const angle = Math.random() * 360;
       const distance = 150 + Math.random() * 100;
       const rotation = Math.random() * 720 - 360;
-      const color = Math.random() > 0.5 ? 'bg-cyan-400' : 'bg-fuchsia-500';
+      // テーマに応じてパーティクルカラーを設定
+      const color = theme === 'light'
+        ? (Math.random() > 0.5 ? 'bg-cyan-400' : 'bg-sky-500')
+        : (Math.random() > 0.5 ? 'bg-yellow-400' : 'bg-amber-500');
       const delay = Math.random() * 200; // ms
 
       return {
@@ -46,21 +51,27 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onCom
         shape: Math.random() > 0.5 ? 'rounded-full' : 'rounded-sm',
       };
     });
-  }, [isAnimating, comboKey]);
+  }, [isAnimating, comboKey, theme]);
 
   if (!isAnimating || !count) {
     return null;
   }
+
+  // テーマに応じてテキストカラーとシャドウを調整
+  const textColorClass = theme === 'light' ? 'text-blue-600' : 'text-white';
+  const textShadowStyle = theme === 'light'
+    ? '0 0 2px #1d4ed8, 0 0 4px #1d4ed8'
+    : '0 0 10px var(--combo-shadow-color), 0 0 20px var(--combo-shadow-color), 0 0 40px var(--combo-shadow-color)';
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
       {/* Combo Text */}
       <div
         key={`combo-text-${comboKey}`}
-        className="text-6xl font-extrabold text-white font-fira"
+        className={`text-6xl font-extrabold ${textColorClass} font-fira`}
         style={{
           animation: `combo-text-pop ${DURATION}ms ease-out forwards`,
-          textShadow: '0 0 10px #facc15, 0 0 20px #facc15, 0 0 40px #facc15'
+          textShadow: textShadowStyle
         }}
       >
         {`${count} COMBO!`}

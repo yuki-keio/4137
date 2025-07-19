@@ -63,7 +63,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
     const hasNewCells = grid.some(row => row.some(cell => cell.state === 'new'));
     if (hasNewCells) {
       const timer = setTimeout(() => {
-        setGrid(prev => prev.map(row => 
+        setGrid(prev => prev.map(row =>
           row.map(cell => cell.state === 'new' ? { ...cell, state: 'idle' } : cell)
         ));
       }, 500); // Corresponds to slide-down animation duration
@@ -120,10 +120,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
             const nextRow = lastPos.row + r_off;
             const nextCol = lastPos.col + c_off;
             if (nextRow >= 0 && nextRow < GRID_SIZE && nextCol >= 0 && nextCol < GRID_SIZE) {
-               const isAlreadySelected = selectedCells.some(p => p.row === nextRow && p.col === nextCol);
-               if (!isAlreadySelected && grid[nextRow][nextCol].value === nextValue) {
-                  newHintedCells.add(`${nextRow}-${nextCol}`);
-               }
+              const isAlreadySelected = selectedCells.some(p => p.row === nextRow && p.col === nextCol);
+              if (!isAlreadySelected && grid[nextRow][nextCol].value === nextValue) {
+                newHintedCells.add(`${nextRow}-${nextCol}`);
+              }
             }
           }
         }
@@ -145,7 +145,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
     if (selectedCells.length > 1) {
       const score = selectedCells.reduce((prod, pos) => prod * grid[pos.row][pos.col].value, 1);
       onAddScore(score, selectedCells.length);
-      
+
       const lastPos = selectedCells[selectedCells.length - 1];
       setFloatingScores(f => [...f, { id: Date.now(), value: score, position: lastPos }]);
 
@@ -158,49 +158,49 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
       });
 
       setTimeout(() => {
-          setGrid(prevGrid => {
-            const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
-            selectedCells.forEach(pos => {
-                newGrid[pos.row][pos.col].value = 0;
-            });
-
-            for (let col = 0; col < GRID_SIZE; col++) {
-              let emptyRow = GRID_SIZE - 1;
-              for (let row = GRID_SIZE - 1; row >= 0; row--) {
-                if (newGrid[row][col].value !== 0) {
-                  [newGrid[emptyRow][col], newGrid[row][col]] = [newGrid[row][col], newGrid[emptyRow][col]];
-                  emptyRow--;
-                }
-              }
-            }
-            
-            const replenishPool = generateReplenishPool(newGrid);
-            let idCounter = Math.max(...newGrid.flat().map(c => c.id)) + 1;
-
-            for (let row = 0; row < GRID_SIZE; row++) {
-              for (let col = 0; col < GRID_SIZE; col++) {
-                if (newGrid[row][col].value === 0) {
-                  newGrid[row][col] = {
-                    id: idCounter++,
-                    value: replenishPool[Math.floor(Math.random() * replenishPool.length)],
-                    state: 'new',
-                  };
-                } else {
-                   newGrid[row][col].state = 'idle';
-                }
-              }
-            }
-            return newGrid;
+        setGrid(prevGrid => {
+          const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
+          selectedCells.forEach(pos => {
+            newGrid[pos.row][pos.col].value = 0;
           });
+
+          for (let col = 0; col < GRID_SIZE; col++) {
+            let emptyRow = GRID_SIZE - 1;
+            for (let row = GRID_SIZE - 1; row >= 0; row--) {
+              if (newGrid[row][col].value !== 0) {
+                [newGrid[emptyRow][col], newGrid[row][col]] = [newGrid[row][col], newGrid[emptyRow][col]];
+                emptyRow--;
+              }
+            }
+          }
+
+          const replenishPool = generateReplenishPool(newGrid);
+          let idCounter = Math.max(...newGrid.flat().map(c => c.id)) + 1;
+
+          for (let row = 0; row < GRID_SIZE; row++) {
+            for (let col = 0; col < GRID_SIZE; col++) {
+              if (newGrid[row][col].value === 0) {
+                newGrid[row][col] = {
+                  id: idCounter++,
+                  value: replenishPool[Math.floor(Math.random() * replenishPool.length)],
+                  state: 'new',
+                };
+              } else {
+                newGrid[row][col].state = 'idle';
+              }
+            }
+          }
+          return newGrid;
+        });
       }, 400); // Wait for clearing animation
     }
-    
+
     setSelectedCells([]);
   }, [isSelecting, selectedCells, grid, onAddScore]);
 
   const handleInteractionStart = (pos: Position | null) => {
     if (!pos || grid[pos.row][pos.col].value !== SEQUENCE[0]) return;
-    
+
     onGameStart();
 
     resetHintTimer();
@@ -218,18 +218,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
       if (pos.row === lastPos.row && pos.col === lastPos.col) {
         return prev;
       }
-      
+
       // Handle backtracking to undo the last selection
       const secondLastPos = prev[prev.length - 2];
       if (secondLastPos && pos.row === secondLastPos.row && pos.col === secondLastPos.col) {
-          return prev.slice(0, -1);
+        return prev.slice(0, -1);
       }
 
       const isAdjacent = Math.abs(lastPos.row - pos.row) <= 1 && Math.abs(lastPos.col - pos.col) <= 1;
       // The key fix: check for selection status against the latest state `prev`
       const isAlreadySelected = prev.some(p => p.row === pos.row && p.col === pos.col);
       const nextValue = SEQUENCE[prev.length % SEQUENCE.length];
-      
+
       if (isAdjacent && !isAlreadySelected && grid[pos.row][pos.col].value === nextValue) {
         return [...prev, pos];
       }
@@ -249,8 +249,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
   const currentSequenceNumbers = useMemo(() => {
     return selectedCells.map(pos => grid[pos.row][pos.col].value);
   }, [selectedCells, grid]);
-  
-  const boardSize = boardRef.current 
+
+  const boardSize = boardRef.current
     ? { width: boardRef.current.clientWidth, height: boardRef.current.clientHeight }
     : { width: 0, height: 0 };
 
@@ -261,7 +261,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
 
   return (
     <div className="flex flex-col items-center">
-      <div 
+      <div
         ref={boardRef}
         className={boardClasses.join(' ')}
         style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
@@ -274,7 +274,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
         onTouchEnd={handleInteractionEnd}
       >
         {selectedCells.length > 1 && boardSize.width > 0 && (
-          <SelectionLine 
+          <SelectionLine
             selectedCells={selectedCells}
             boardSize={boardSize}
           />
@@ -283,7 +283,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
           row.map((cell, colIndex) => {
             const selectionIndex = selectedMap.get(`${rowIndex}-${colIndex}`);
             const isSelected = selectionIndex !== undefined;
-            
+
             return (
               <NumberCell
                 key={cell.id}
@@ -305,7 +305,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
           />
         ))}
       </div>
-      <div className="mt-4 w-full h-20 flex items-center justify-center bg-slate-800/50 rounded-lg p-2 text-center" aria-live="polite">
+      <div className="mt-4 w-full h-20 flex items-center justify-center rounded-lg p-2 text-center transition-all duration-300" style={{ backgroundColor: 'var(--bg-secondary)' }} aria-live="polite">
         <div className="text-2xl md:text-3xl font-bold transition-all duration-300 font-fira flex items-center gap-x-2">
           {(currentSequenceNumbers.length > 0 ? currentSequenceNumbers : SEQUENCE).map((num, index, arr) => {
             const isSelectionActive = currentSequenceNumbers.length > 0;
@@ -313,7 +313,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart })
               <React.Fragment key={index}>
                 <span className={`${NUMBER_COLORS[num]} ${isSelectionActive ? 'text-glow' : ''}`}>{num}</span>
                 {index < arr.length && (
-                  <span className={isSelectionActive ? 'text-cyan-400 text-glow' : 'text-slate-400'}>→</span>
+                  <span className={isSelectionActive ? 'text-cyan-400 text-glow' : ''} style={{ color: isSelectionActive ? '#22d3ee' : 'var(--text-secondary)' }}>→</span>
                 )}
               </React.Fragment>
             );

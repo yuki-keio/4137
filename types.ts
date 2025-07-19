@@ -16,3 +16,5 @@ export interface FloatingScore {
   value: number;
   position: Position;
 }
+
+export type Theme = 'light' | 'dark';
