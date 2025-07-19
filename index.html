@@ -310,6 +310,15 @@
         }
       }
     </style>
+    <script>
+      // ページ読み込み前にテーマを適用してチラつきを防ぐ
+      (function() {
+        const THEME_STORAGE_KEY = '4137-theme';
+        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        const theme = savedTheme || 'dark'; // デフォルトはダーク
+        document.documentElement.classList.add(theme);
+      })();
+    </script>
   <script type="importmap">
 {
   "imports": {
@@ -321,7 +330,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="dark antialiased">
+  <body class="antialiased">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

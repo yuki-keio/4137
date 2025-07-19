@@ -31,6 +31,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
         // HTMLルート要素にテーマクラスを設定
         const root = document.documentElement;
+        // 既存のテーマクラスを削除してから新しいテーマを設定
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
     }, [theme]);
