@@ -7,11 +7,13 @@ import { Timer, HelpCircle, Sun, Moon } from './components/icons';
 import { GameState } from './types';
 import { ComboEffect } from './components/ComboEffect';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { usePWAInstall } from './hooks/usePWAInstall';
 
 const HIGH_SCORE_KEY = '4137-highScore';
 
 const GameApp: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
+  const { canInstall, installPWA } = usePWAInstall();
 
   // Game state management
   const [gameState, setGameState] = useState<GameState>('playing');
@@ -45,11 +47,11 @@ const GameApp: React.FC = () => {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('SW registered: ', registration);
+        .then(() => {
+          console.log('Service Worker registered successfully');
         })
         .catch((registrationError) => {
-          console.log('SW registration failed: ', registrationError);
+          console.log('Service Worker registration failed: ', registrationError);
         });
     }
   }, []);
@@ -250,6 +252,8 @@ const GameApp: React.FC = () => {
                 highScore={highScore}
                 isNewHighScore={isNewHighScore}
                 onReset={startGame}
+                canInstall={canInstall}
+                onInstall={installPWA}
               />
             )}
             {showInstructions && <Instructions onClose={() => setShowInstructions(false)} />}

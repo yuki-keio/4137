@@ -12,7 +12,6 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     onCancel
 }) => {
     if (!isVisible) {
-        console.warn('PWAInstallPrompt is not visible');
         return null;
     }
 

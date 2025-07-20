@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
-import { usePWAInstall } from '../hooks/usePWAInstall';
 
 interface GameEndScreenProps {
   score: number;
@@ -8,10 +7,19 @@ interface GameEndScreenProps {
   highScore: number;
   isNewHighScore: boolean;
   onReset: () => void;
+  canInstall: boolean;
+  onInstall: () => Promise<boolean>;
 }
 
-export const GameEndScreen: React.FC<GameEndScreenProps> = ({ score, level, highScore, isNewHighScore, onReset }) => {
-  const { canInstall, installPWA } = usePWAInstall();
+export const GameEndScreen: React.FC<GameEndScreenProps> = ({
+  score,
+  level,
+  highScore,
+  isNewHighScore,
+  onReset,
+  canInstall,
+  onInstall
+}) => {
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [hasShownPrompt, setHasShownPrompt] = useState(false);
 
@@ -28,7 +36,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({ score, level, high
   }, [canInstall, hasShownPrompt]);
 
   const handleInstall = async () => {
-    const success = await installPWA();
+    const success = await onInstall();
     if (success) {
       setShowInstallPrompt(false);
     }
