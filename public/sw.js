@@ -1,16 +1,9 @@
-const CACHE_NAME = '4137-game-v1.0.4';
-const CRITICAL_CACHE = '4137-critical-v1.0.4';
-
-// Critical resources for LCP optimization
-const criticalResources = [
+const CACHE_NAME = '4137-game-v1.0.3';
+const urlsToCache = [
     '/',
     '/index.html',
-    '/images/4137.png'
-];
-
-// Secondary resources
-const secondaryResources = [
     '/index.css',
+    '/images/4137.png',
     '/images/icon-192.png',
     '/images/icon-512.png',
     '/images/v4137.png',
@@ -19,23 +12,19 @@ const secondaryResources = [
     '/manifest.json'
 ];
 
-// Service Worker のインストール - Critical resources first
+// Service Worker のインストール
 self.addEventListener('install', (event) => {
+    // 新しいService Workerを即座にアクティブにする
     self.skipWaiting();
 
     event.waitUntil(
-        Promise.all([
-            // Critical resources first for LCP
-            caches.open(CRITICAL_CACHE).then((cache) => {
-                return cache.addAll(criticalResources);
-            }),
-            // Secondary resources can wait
-            caches.open(CACHE_NAME).then((cache) => {
-                return cache.addAll(secondaryResources);
+        caches.open(CACHE_NAME)
+            .then((cache) => {
+                return cache.addAll(urlsToCache);
             })
-        ]).catch((error) => {
-            console.error('Cache installation failed:', error);
-        })
+            .catch((error) => {
+                console.error('Cache installation failed:', error);
+            })
     );
 });
 
@@ -48,7 +37,7 @@ self.addEventListener('activate', (event) => {
             caches.keys().then((cacheNames) => {
                 return Promise.all(
                     cacheNames.map((cacheName) => {
-                        if (cacheName !== CACHE_NAME && cacheName !== CRITICAL_CACHE) {
+                        if (cacheName !== CACHE_NAME) {
                             console.log('Deleting old cache:', cacheName);
                             return caches.delete(cacheName);
                         }
@@ -61,28 +50,8 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// リクエストの処理 - Critical resources prioritized
+// リクエストの処理
 self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-
-    // Critical resources - check critical cache first
-    if (criticalResources.some(resource => url.pathname === resource || url.pathname.endsWith(resource))) {
-        event.respondWith(
-            caches.match(event.request, { cacheName: CRITICAL_CACHE })
-                .then((response) => {
-                    if (response) {
-                        return response;
-                    }
-                    // Fallback to network with critical priority
-                    return fetch(event.request, { priority: 'high' }).catch(() => {
-                        return caches.match(event.request);
-                    });
-                })
-        );
-        return;
-    }
-
-    // Regular fetch strategy for non-critical resources
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
@@ -113,11 +82,7 @@ self.addEventListener('fetch', (event) => {
                     if (shouldCache) {
                         // レスポンスをクローンしてキャッシュに保存
                         const responseToCache = response.clone();
-                        const targetCache = criticalResources.some(resource =>
-                            url.pathname === resource || url.pathname.endsWith(resource)
-                        ) ? CRITICAL_CACHE : CACHE_NAME;
-
-                        caches.open(targetCache)
+                        caches.open(CACHE_NAME)
                             .then((cache) => {
                                 cache.put(event.request, responseToCache);
                             });
@@ -133,7 +98,6 @@ self.addEventListener('fetch', (event) => {
                 }
             })
     );
-});
 });
 
 // PWA インストールバナーの管理
