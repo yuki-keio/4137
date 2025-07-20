@@ -11,7 +11,10 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     onInstall,
     onCancel
 }) => {
-    if (!isVisible) return null;
+    if (!isVisible) {
+        console.warn('PWAInstallPrompt is not visible');
+        return null;
+    }
 
     return (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in"
