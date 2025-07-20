@@ -75,7 +75,7 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                             インストール
                         </button>
                     </div>
-                    
+
                     {onNeverShow && (
                         <button
                             onClick={onNeverShow}
