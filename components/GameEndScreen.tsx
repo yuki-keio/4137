@@ -23,9 +23,26 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [hasShownPrompt, setHasShownPrompt] = useState(false);
 
+  // ローカルストレージから設定を取得
+  const getNeverShowInstallPrompt = () => {
+    try {
+      return localStorage.getItem('neverShowPWAInstall') === 'true';
+    } catch {
+      return false;
+    }
+  };
+
+  const setNeverShowInstallPrompt = () => {
+    try {
+      localStorage.setItem('neverShowPWAInstall', 'true');
+    } catch {
+      // ローカルストレージが使えない場合は何もしない
+    }
+  };
+
   // ゲーム終了後に一度だけインストールプロンプトを表示
   useEffect(() => {
-    if (canInstall && !hasShownPrompt) {
+    if (canInstall && !hasShownPrompt && !getNeverShowInstallPrompt()) {
       const timer = setTimeout(() => {
         setShowInstallPrompt(true);
         setHasShownPrompt(true);
@@ -43,6 +60,11 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
   };
 
   const handleCancelInstall = () => {
+    setShowInstallPrompt(false);
+  };
+
+  const handleNeverShowInstall = () => {
+    setNeverShowInstallPrompt();
     setShowInstallPrompt(false);
   };
   return (
@@ -89,6 +111,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({
         isVisible={showInstallPrompt}
         onInstall={handleInstall}
         onCancel={handleCancelInstall}
+        onNeverShow={handleNeverShowInstall}
       />
     </div>
   );

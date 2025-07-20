@@ -4,12 +4,14 @@ interface PWAInstallPromptProps {
     isVisible: boolean;
     onInstall: () => void;
     onCancel: () => void;
+    onNeverShow?: () => void;
 }
 
 export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
     isVisible,
     onInstall,
-    onCancel
+    onCancel,
+    onNeverShow
 }) => {
     if (!isVisible) {
         return null;
@@ -51,26 +53,41 @@ export const PWAInstallPrompt: React.FC<PWAInstallPromptProps> = ({
                     </div>
                 </div>
 
-                <div className="flex space-x-3">
-                    <button
-                        onClick={onCancel}
-                        className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border-2 transition-all duration-200 hover:opacity-80"
-                        style={{
-                            borderColor: 'var(--border-color)',
-                            color: 'var(--text-secondary)',
-                            backgroundColor: 'transparent'
-                        }}
-                    >
-                        後で
-                    </button>
+                <div className="flex flex-col space-y-3">
+                    <div className="flex space-x-3">
+                        <button
+                            onClick={onCancel}
+                            className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border-2 transition-all duration-200 hover:opacity-80"
+                            style={{
+                                borderColor: 'var(--border-color)',
+                                color: 'var(--text-secondary)',
+                                backgroundColor: 'transparent'
+                            }}
+                        >
+                            後で
+                        </button>
 
-                    <button
-                        onClick={onInstall}
-                        className="flex-1 px-4 py-2 text-sm font-bold text-white rounded-lg transition-all duration-200 hover:opacity-90"
-                        style={{ background: 'linear-gradient(to right, var(--ui-gradient-start), var(--ui-gradient-end))' }}
-                    >
-                        インストール
-                    </button>
+                        <button
+                            onClick={onInstall}
+                            className="flex-1 px-4 py-2 text-sm font-bold text-white rounded-lg transition-all duration-200 hover:opacity-90"
+                            style={{ background: 'linear-gradient(to right, var(--ui-gradient-start), var(--ui-gradient-end))' }}
+                        >
+                            インストール
+                        </button>
+                    </div>
+                    
+                    {onNeverShow && (
+                        <button
+                            onClick={onNeverShow}
+                            className="w-full px-4 py-2 text-xs font-medium rounded-lg transition-all duration-200 hover:opacity-60"
+                            style={{
+                                color: 'var(--text-secondary)',
+                                backgroundColor: 'transparent'
+                            }}
+                        >
+                            今後表示しない
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
