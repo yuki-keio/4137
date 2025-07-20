@@ -86,9 +86,7 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onCom
 
   // テーマに応じてテキストカラーとシャドウを調整
   const textColorClass = theme === 'light' ? 'text-blue-600' : 'text-white';
-  const textShadowStyle = theme === 'light'
-    ? '0 0 2px #1d4ed8, 0 0 4px #1d4ed8'
-    : '0 0 10px var(--combo-shadow-color), 0 0 20px var(--combo-shadow-color), 0 0 40px var(--combo-shadow-color)';
+  const textShadowStyle = '0 0 10px var(--combo-shadow-color), 0 0 20px var(--combo-shadow-color), 0 0 40px var(--combo-shadow-color)';
 
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">

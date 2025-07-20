@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { PWAInstallPrompt } from './PWAInstallPrompt';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 interface GameEndScreenProps {
   score: number;
@@ -9,6 +11,32 @@ interface GameEndScreenProps {
 }
 
 export const GameEndScreen: React.FC<GameEndScreenProps> = ({ score, level, highScore, isNewHighScore, onReset }) => {
+  const { canInstall, installPWA } = usePWAInstall();
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [hasShownPrompt, setHasShownPrompt] = useState(false);
+
+  // ゲーム終了後に一度だけインストールプロンプトを表示
+  useEffect(() => {
+    if (canInstall && !hasShownPrompt) {
+      const timer = setTimeout(() => {
+        setShowInstallPrompt(true);
+        setHasShownPrompt(true);
+      }, 2000); // 2秒後に表示
+
+      return () => clearTimeout(timer);
+    }
+  }, [canInstall, hasShownPrompt]);
+
+  const handleInstall = async () => {
+    const success = await installPWA();
+    if (success) {
+      setShowInstallPrompt(false);
+    }
+  };
+
+  const handleCancelInstall = () => {
+    setShowInstallPrompt(false);
+  };
   return (
     <div className="absolute inset-0 backdrop-blur-sm flex flex-col items-center justify-center z-10 animate-fade-in" style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
       <div className="p-8 rounded-xl shadow-2xl text-center border-2 border-cyan-400/50 shadow-cyan-500/20 w-11/12 max-w-md transition-all duration-300" style={{ backgroundColor: 'var(--bg-secondary)' }}>
@@ -48,6 +76,12 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({ score, level, high
           もう一度プレイ
         </button>
       </div>
+
+      <PWAInstallPrompt
+        isVisible={showInstallPrompt}
+        onInstall={handleInstall}
+        onCancel={handleCancelInstall}
+      />
     </div>
   );
 };
