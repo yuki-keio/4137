@@ -24,14 +24,14 @@ export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelec
   const shineAnimationDelay = (selectionIndex !== undefined) ? `${selectionIndex * 120}ms` : '0s';
 
   const comboParticles = useMemo(() => {
-    if (!isSelected || comboLength < 6) return [];
+    if (!isSelected || comboLength < 5) return [];
 
     // エレガントにするためにパーティクルの数と飛距離を調整
-    const particleCount = Math.min(Math.max(0, comboLength - 4), 8);
+    const particleCount = Math.min(Math.max(0, comboLength - 4), 7);
 
     return Array.from({ length: particleCount }).map((_, i) => {
       const angle = Math.random() * 360;
-      const distance = 50 + Math.random() * 30;
+      const distance = 70 + Math.random() * 30;
       // アニメーション時間を短くして、素早いエフェクトに
       const duration = 600 + Math.random() * 400; // ms
       const delay = Math.random() * 150; // ms
@@ -117,7 +117,7 @@ export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelec
       {comboParticles.map(p => (
         <div
           key={p.id}
-          className={`absolute top-1/2 left-1/2 w-[6px] h-[6px] z-0 rounded-full pointer-events-none ${theme === 'light' ? 'bg-cyan-400' : 'bg-yellow-400/75'
+          className={`absolute top-1/2 left-1/2 w-[8px] h-[8px] z-0 rounded-full pointer-events-none ${theme === 'light' ? 'bg-cyan-400' : 'bg-yellow-400/75'
             }`}
           style={p.style}
         />

@@ -43,7 +43,7 @@ export const GameEndScreen: React.FC<GameEndScreenProps> = ({ score, level, high
         <button
           onClick={onReset}
           className="w-full mt-4 px-8 py-3 text-white font-bold rounded-lg hover:opacity-90 transition-opacity duration-200 text-xl"
-          style={{ background: 'linear-gradient(to right, var(--gradient-start), var(--gradient-end))' }}
+          style={{ background: 'linear-gradient(to right, var(--ui-gradient-start), var(--ui-gradient-end))' }}
         >
           もう一度プレイ
         </button>

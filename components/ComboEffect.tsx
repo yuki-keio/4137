@@ -48,21 +48,21 @@ export const ComboEffect: React.FC<ComboEffectProps> = ({ count, comboKey, onCom
 
   const particles = useMemo(() => {
     if (!isAnimating || !count) return [];
-    
+
     // コンボ数に応じてパーティクル数を調整（パフォーマンス最適化）
     const particleCount = Math.min(
-      BASE_PARTICLE_COUNT + Math.floor(count / 10), 
+      BASE_PARTICLE_COUNT + Math.floor(count / 10),
       MAX_PARTICLE_COUNT
     );
-    
+
     const particleTypes = PARTICLE_TYPES[theme];
-    
+
     return Array.from({ length: particleCount }).map((_, i) => {
       // ランダム値を事前計算して再利用
       const typeIndex = i % particleTypes.length;
       const sizeIndex = i % SIZES.length;
       const shapeIndex = Math.floor(i / 3) % SHAPES.length;
-      
+
       const angle = (360 / particleCount) * i + (Math.random() - 0.5) * 60; // より均等に分散
       const distance = 120 + (i % 3) * 40; // 距離を段階的に
       const delay = (i * 50) % 300; // より均等な遅延

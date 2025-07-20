@@ -12,19 +12,19 @@ export const Instructions: React.FC<InstructionsProps> = ({ onClose }) => {
         <div className="text-lg space-y-4 text-left mb-8" style={{ color: 'var(--text-secondary)' }}>
           <p>
             タテ・ヨコ・ナナメに隣り合った数字を
-            <strong className="text-cyan-300">「4 → 1 → 3 → 7 →」</strong>
-            の順番に繋げて消せます。
+            <strong>「<span className="text-[var(--number-4-color)]">4</span> → <span className="text-[var(--number-1-color)]">1</span> → <span className="text-[var(--number-3-color)]">3</span> → <span className="text-[var(--number-7-color)]">7</span> →」</strong>
+            の順番にスライドして繋げます
           </p>
           <p>
-            スコアは、繋げた数字を<strong className="text-yellow-300">掛け算した値</strong>になります。
+            繋げた数字を<strong className="text-cyan-500">掛け算した値</strong>がスコアに加算されていきます🚀✨️
           </p>
         </div>
         <button
           onClick={onClose}
-          className="px-10 py-3 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-200 hover:scale-105 text-xl"
-          style={{ background: 'linear-gradient(to right, var(--gradient-start), var(--gradient-end))' }}
+          className="px-10 py-2 text-white font-bold rounded-lg hover:opacity-90 transition-all duration-200 hover:scale-105 text-xl"
+          style={{ background: 'linear-gradient(to right, var(--ui-gradient-start), var(--ui-gradient-end))' }}
         >
-          ゲームをプレイ
+          OK
         </button>
       </div>
     </div>
