@@ -3,6 +3,11 @@ export const SEQUENCE = [4, 1, 3, 7];
 export const INITIAL_TIME_LIMIT = 60;
 export const HINT_TIMEOUT = 500; // 3 seconds
 
+// レインボーセル関連の設定
+export const RAINBOW_TURN_THRESHOLD = 2; // 3手目以降でレインボーセル生成
+export const RAINBOW_GENERATION_PROBABILITY = 1; // 
+export const RAINBOW_REFRESH_PROBABILITY = 1; // 使用されれば必ず盤面リフレッシュ
+
 export const NUMBER_COLORS: { [key: number]: string } = {
   4: 'text-[var(--number-4-color)]',
   1: 'text-[var(--number-1-color)]',

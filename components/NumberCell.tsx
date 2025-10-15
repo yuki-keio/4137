@@ -23,6 +23,13 @@ export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelec
 
   const shineAnimationDelay = (selectionIndex !== undefined) ? `${selectionIndex * 120}ms` : '0s';
 
+  // レインボーセル用のスタイル - CSSで作るエネルギッシュなアイコン
+  const rainbowTextStyle: React.CSSProperties = cell.isRainbow
+    ? {
+      display: 'none' // テキストは非表示にして、CSSアイコンを使用
+    }
+    : textShadowStyle;
+
   const comboParticles = useMemo(() => {
     if (!isSelected || comboLength < 5) return [];
 
@@ -62,18 +69,34 @@ export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelec
   // 状態に応じたクラスとスタイルを追加
   let cellStyle: React.CSSProperties = {};
 
-  if (cell.state === 'clearing') {
+  if (cell.isRainbow) {
+    // レインボーセルのスタイル - 背景を完全に透明に
+    cellClasses.push('rainbow-cell');
+    cellStyle.backgroundColor = 'transparent';
+    cellStyle.border = 'none';
+    cellStyle.boxShadow = 'none';
+  } else if (cell.state === 'clearing') {
     // 消えるときのアニメーションを適用
     cellClasses.push('animate-cell-clear-spin');
   } else if (cell.state === 'new') {
     cellClasses.push(colorClass, 'animate-slide-down');
     cellStyle.backgroundColor = 'var(--bg-secondary)';
   } else if (isSelected) {
-    cellClasses.push('bg-sky-400', 'text-slate-900');
+    if (cell.isRainbow) {
+      // ワイルドカードが選択されたときは背景を透明にして、CSSアイコンのみ強調
+      cellClasses.push('text-white');
+      cellStyle.backgroundColor = 'transparent';
+      cellStyle.border = 'none';
+      cellStyle.boxShadow = 'none';
+    } else {
+      cellClasses.push('bg-sky-400', 'text-slate-900');
+    }
     const isOdd = selectionIndex !== undefined && selectionIndex % 2 !== 0;
     cellClasses.push(isOdd ? 'is-glowing-odd' : 'is-glowing-even');
   } else {
-    cellClasses.push(colorClass);
+    if (!cell.isRainbow) {
+      cellClasses.push(colorClass);
+    }
     cellStyle.backgroundColor = 'var(--bg-secondary)';
     cellStyle.transition = 'background-color 0.3s ease';
   }
@@ -107,11 +130,19 @@ export const NumberCell: React.FC<NumberCellProps> = React.memo(({ cell, isSelec
           />
         )}
         <span
-          style={textShadowStyle}
-          className="relative z-[1]"
+          style={cell.isRainbow ? rainbowTextStyle : textShadowStyle}
+          className={`relative z-[1] ${cell.isRainbow ? '' : colorClass}`}
         >
-          {cell.value}
+          {cell.isRainbow ? '' : cell.value}
         </span>
+
+        {/* レインボーセル専用のCSSアイコン */}
+        {cell.isRainbow && (
+          <div className="rainbow-icon absolute inset-0 flex items-center justify-center">
+            <div className="rainbow-core"></div>
+          </div>
+        )}
+
       </div>
       {/* 長いコンボの時にパーティクルエフェクトを表示 */}
       {comboParticles.map(p => (

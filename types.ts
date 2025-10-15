@@ -2,6 +2,7 @@ export interface CellData {
   id: number;
   value: number;
   state: 'idle' | 'clearing' | 'new';
+  isRainbow?: boolean;
 }
 
 export interface Position {
