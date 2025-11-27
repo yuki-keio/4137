@@ -7,7 +7,7 @@ import { CellData, Position, FloatingScore } from '../types';
 import { GRID_SIZE, SEQUENCE, WEIGHTED_NUMBERS, HINT_TIMEOUT, NUMBER_COLORS, RAINBOW_TURN_THRESHOLD, RAINBOW_GENERATION_PROBABILITY, RAINBOW_REFRESH_PROBABILITY } from '../constants';
 
 // Require the pointer to get close to the center of a cell before it counts as a hit
-const CELL_HIT_RADIUS_RATIO = 0.44;
+const CELL_HIT_RADIUS_RATIO = 0.46;
 
 interface GameBoardProps {
   onAddScore: (score: number, cellCount: number) => void;
