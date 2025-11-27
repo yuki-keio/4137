@@ -6,6 +6,9 @@ import { RainbowRefreshEffect } from './RainbowRefreshEffect';
 import { CellData, Position, FloatingScore } from '../types';
 import { GRID_SIZE, SEQUENCE, WEIGHTED_NUMBERS, HINT_TIMEOUT, NUMBER_COLORS, RAINBOW_TURN_THRESHOLD, RAINBOW_GENERATION_PROBABILITY, RAINBOW_REFRESH_PROBABILITY } from '../constants';
 
+// Require the pointer to get close to the center of a cell before it counts as a hit
+const CELL_HIT_RADIUS_RATIO = 0.44;
+
 interface GameBoardProps {
   onAddScore: (score: number, cellCount: number) => void;
   onGameStart: () => void;
@@ -95,10 +98,22 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
-    const col = Math.floor((x / rect.width) * GRID_SIZE);
-    const row = Math.floor((y / rect.height) * GRID_SIZE);
+    const cellWidth = rect.width / GRID_SIZE;
+    const cellHeight = rect.height / GRID_SIZE;
 
-    if (row >= 0 && row < GRID_SIZE && col >= 0 && col < GRID_SIZE) {
+    const col = Math.floor(x / cellWidth);
+    const row = Math.floor(y / cellHeight);
+
+    if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) {
+      return null;
+    }
+
+    const cellCenterX = (col + 0.5) * cellWidth;
+    const cellCenterY = (row + 0.5) * cellHeight;
+    const distanceFromCenter = Math.hypot(x - cellCenterX, y - cellCenterY);
+    const hitRadius = Math.min(cellWidth, cellHeight) * CELL_HIT_RADIUS_RATIO;
+
+    if (distanceFromCenter <= hitRadius) {
       return { row, col };
     }
     return null;
