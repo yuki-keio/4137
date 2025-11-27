@@ -52,6 +52,12 @@ const generateReplenishPool = (grid: CellData[][]): number[] => {
   return pool;
 };
 
+const getSequenceValueForSelection = (pos: Position, index: number, grid: CellData[][]): number => {
+  const cell = grid[pos.row][pos.col];
+  const expectedValue = SEQUENCE[index % SEQUENCE.length];
+  return cell.isRainbow ? expectedValue : cell.value;
+};
+
 export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, onRainbowActivated }) => {
   const [grid, setGrid] = useState<CellData[][]>(generateInitialGrid);
   const [selectedCells, setSelectedCells] = useState<Position[]>([]);
@@ -201,11 +207,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
     setIsSelecting(false);
 
     if (selectedCells.length > 1) {
-      const score = selectedCells.reduce((prod, pos) => {
-        const cell = grid[pos.row][pos.col];
-        // レインボーセルは任意の数字として扱う（スコア計算では実際の値を使用）
-        return prod * cell.value;
-      }, 1);
+      const selectionValues = selectedCells.map((pos, index) =>
+        getSequenceValueForSelection(pos, index, grid)
+      );
+
+      // レインボーセルはシーケンス上の期待値として評価する
+      const score = selectionValues.reduce((prod, value) => prod * value, 1);
 
       // レインボーセルが含まれているかチェック
       const hasRainbowCell = selectedCells.some(pos => grid[pos.row][pos.col].isRainbow);
@@ -363,7 +370,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
   }, [selectedCells]);
 
   const currentSequenceNumbers = useMemo(() => {
-    return selectedCells.map(pos => grid[pos.row][pos.col].value);
+    return selectedCells.map((pos, index) =>
+      getSequenceValueForSelection(pos, index, grid)
+    );
   }, [selectedCells, grid]);
 
   const boardSize = boardRef.current
