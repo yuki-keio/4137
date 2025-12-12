@@ -1,4 +1,4 @@
-const CACHE_NAME = '4137-game-v1.0.4';
+const CACHE_NAME = '4137-game-v2025.12.13.0243';
 const urlsToCache = [
     '/',
     '/index.html',
