@@ -1,4 +1,4 @@
-const CACHE_NAME = '4137-game-v2025.12.13.0243';
+const CACHE_NAME = '4137-game-v2025.12.13.0243';// <-- この行は scripts/update-sw-version.js によって自動更新される
 const urlsToCache = [
     '/',
     '/index.html',
