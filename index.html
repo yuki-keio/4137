@@ -96,6 +96,9 @@
         color: var(--text-primary);
         transition: var(--transition-theme);
       }
+      #root{
+        min-height: 600px;
+      }
       .font-fira {
         font-family: 'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
       }
@@ -374,9 +377,76 @@
         }
       }
 
-      
-      .rainbow-cell {
+      /* Other Games Section */
+      #other_games {
+        max-width: 510px;
+        margin: 2rem auto;
+        padding: 1.5rem .6rem;
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        transition: var(--transition-theme);
+      }
 
+      #other_games h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      #other_games p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+      }
+
+      #other_games ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: .7rem;
+      }
+
+      #other_games li {
+        display: inline-block;
+      }
+
+      #other_games a {
+        display: inline-block;
+        padding: 0.625rem 1.25rem;
+        background: linear-gradient(135deg, var(--ui-gradient-start), var(--ui-gradient-end));
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        box-shadow: 0 2px 8px var(--shadow-color);
+      }
+
+      #other_games a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px var(--shadow-color);
+        opacity: 0.9;
+      }
+
+      #other_games a:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 516px) {
+        #other_games {
+          margin : 1rem .5rem;
+        }
       }
 
     </style>
@@ -421,6 +491,17 @@
 </head>
   <body class="antialiased">
     <div id="root"></div>
+    
+    <section id="other_games">
+      <h2>Yuki LabのWebサイト</h2>
+      <p>本サイトで公開している、楽しさと品質にこだわった無料のWebゲームをいくつかご紹介します。</p>
+      <ul>
+        <li><a href="https://reversi.yuki-lab.com/">リバーシWeb</a></li>
+        <li><a href="https://shogi.yuki-lab.com/">将棋Web</a></li>
+        <li><a href="https://chess.yuki-lab.com/">チェス</a></li>
+      </ul>
+    </section>
+
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

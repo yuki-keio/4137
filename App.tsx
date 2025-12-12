@@ -138,11 +138,11 @@ const GameApp: React.FC = () => {
     : 100;
 
   return (
-    <div className="min-h-screen transition-all duration-300" style={{
+    <div className="transition-all duration-300" style={{
       backgroundColor: 'var(--bg-primary)',
       color: 'var(--text-primary)'
     }}>
-      <div className="min-h-screen flex flex-col items-center justify-center p-2 md:p-4 selection:bg-cyan-300 selection:text-slate-900">
+      <div className="flex flex-col items-center justify-center p-2 md:p-4 selection:bg-cyan-300 selection:text-slate-900">
         <ComboEffect
           count={comboEffectTrigger}
           comboKey={comboKey}
