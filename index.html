@@ -99,6 +99,9 @@
       .font-fira {
         font-family: 'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
       }
+      .font-formula {
+        font-family: serif;
+      }
       .animate-fade-in {
         animation: fadeIn 0.3s ease-out forwards;
       }
@@ -209,6 +212,40 @@
           transform: scale(1);
         }
       }
+      
+      /* Rainbow text animation for rainbow cells */
+      .rainbow-text {
+        background: linear-gradient(
+          45deg,
+          var(--number-4-color),
+          var(--number-1-color),
+          var(--number-3-color),
+          var(--number-7-color)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: rainbow-text-animation 10s linear infinite;
+      }
+      @keyframes rainbow-text-animation {
+        0% {
+          text-shadow: 0 0 15px var(--number-4-color), 0 0 15px var(--number-4-color);
+        }
+        25% {
+          text-shadow: 0 0 15px var(--number-1-color), 0 0 15px var(--number-1-color);
+        }
+        50% {
+          text-shadow: 0 0 15px var(--number-3-color), 0 0 15px var(--number-3-color);
+        }
+        75% {
+          text-shadow: 0 0 15px var(--number-7-color), 0 0 15px var(--number-7-color);
+        }
+        100% {
+          text-shadow: 0 0 15px var(--number-4-color), 0 0 15px var(--number-4-color);
+        }
+      }
+
+      
       @keyframes slide-down {
         from {
           transform: translateY(-100%);
@@ -339,311 +376,9 @@
 
       
       .rainbow-cell {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        position: relative;
-        overflow: visible;
-      }
-      
-      /* 虹色アイコンのコア部分 */
-      .rainbow-core {
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 30%, transparent 70%);
-        position: relative;
-        animation: core-pulse 2s ease-in-out infinite;
-        
-      }
-      
-      .rainbow-core::before {
-        content: '';
-        position: absolute;
-        inset: -8px;
-        border-radius: 50%;
-        background: conic-gradient(
-          var(--number-4-color) 0deg,
-          var(--number-1-color) 90deg,
-          var(--number-3-color) 180deg,
-          var(--number-7-color) 270deg,
-          var(--number-4-color) 360deg
-        );
-        animation: rainbow-spin 3s linear infinite;
-        opacity: 0.8;
-      }
-      
-      .rainbow-core::after {
-        content: '';
-        position: absolute;
-        inset: -4px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%);
-        animation: sparkle-ring 1.5s ease-in-out infinite alternate;
-      }
-      
-      /* 選択時の特別なパルス */
-      @keyframes rainbow-selected-pulse {
-        0%, 100% {
-          transform: scale(1);
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-        }
-        50% {
-          transform: scale(1.08);
-          box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 
-                      0 0 40px var(--number-4-color, rgba(220, 38, 38, 0.5)),
-                      0 0 50px var(--number-1-color, rgba(3, 105, 161, 0.4)),
-                      inset 0 3px 6px rgba(255, 255, 255, 0.4);
-        }
-      }
-      
-      @keyframes core-pulse {
-        0%, 100% {
-          transform: scale(1);
-          box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
-        }
-        50% {
-          transform: scale(1);
-          box-shadow: 0 0 16px rgba(255, 255, 255, 0.9), 0 0 24px rgba(255, 255, 255, 1);
-        }
-      }
-      
-      @keyframes rainbow-spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      
-      @keyframes sparkle-ring {
-        0% {
-          transform: scale(0.8);
-          opacity: 0.4;
-        }
-        100% {
-          transform: scale(1.2);
-          opacity: 0.8;
-        }
-      }
-      
-      @keyframes board-refresh {
-        0% { transform: scale(1) rotate(0deg); opacity: 1; }
-        50% { transform: scale(0.8) rotate(180deg); opacity: 0.7; }
-        100% { transform: scale(1) rotate(360deg); opacity: 1; }
-      }
-      
-      .board-refresh-animation {
-        animation: board-refresh 0.8s ease-in-out;
+
       }
 
-      /* Rainbow Refresh Effect Styles */
-      .rainbow-refresh-effect {
-        backdrop-filter: blur(1px);
-      }
-
-      /* 発動位置の輝きエフェクト */
-      .rainbow-trigger-glow {
-        width: 40px;
-        height: 40px;
-        z-index: 60;
-        opacity: 0.3;
-      }
-
-      .trigger-spark-core {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: radial-gradient(circle, 
-          rgba(255, 255, 255, 1) 0%, 
-          rgba(255, 255, 255, 0.8) 30%, 
-          transparent 70%
-        );
-        opacity: 0.3;
-        animation: trigger-spark-pulse 0.7s ease-out;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 1);
-      }
-
-      .trigger-spark-ring {
-        position: absolute;
-        inset: -10px;
-        border-radius: 50%;
-        background: conic-gradient(
-          #ff4757 0deg,
-          #ffa502 60deg,
-          #2ed573 120deg,
-          #1e90ff 180deg,
-          #a742d8 240deg,
-          #ff4757 300deg
-        );
-        animation: trigger-ring-expand 0.3s;
-      }
-
-      .trigger-spark-rays {
-        position: absolute;
-        inset: -20px;
-        background: radial-gradient(circle,
-          transparent 40%,
-          rgba(255, 255, 255, 0.6) 50%,
-          transparent 60%
-        );
-        animation: trigger-rays-burst 0.5s ease-out;
-      }
-
-      @keyframes trigger-spark-pulse {
-        0% {
-          transform: scale(0.3);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.5);
-          opacity: 1;
-          box-shadow: 0 0 40px rgba(255, 255, 255, 1);
-        }
-        100% {
-          transform: scale(1);
-          opacity: 0;
-        }
-      }
-
-      @keyframes trigger-ring-expand {
-        0% {
-          transform: scale(0.5) rotate(0deg);
-        }
-        100% {
-          transform: scale(2) rotate(360deg);
-        }
-      }
-
-      @keyframes trigger-rays-burst {
-        0% {
-          transform: scale(0) rotate(0deg);
-          opacity: 1;
-        }
-        100% {
-          transform: scale(4) rotate(180deg);
-          opacity: 0;
-        }
-      }
-
-      /* 虹コア */
-      .rainbow-refresh-core {
-        width: 60px;
-        height: 60px;
-        opacity: 0.6;
-        z-index: 50;
-      }
-
-      .rainbow-core-pulse {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: conic-gradient(
-          #ff4757 0deg,
-          #ffa502 60deg,
-          #2ed573 120deg,
-          #1e90ff 180deg,
-          #a742d8 240deg,
-          #ff4757 300deg
-        );
-        animation: core-pulse-simple 0.7s;
-        box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-      }
-
-      @keyframes core-pulse-simple {
-        0% {
-          transform: scale(0.5) rotate(0deg);
-          opacity: 0;
-        }
-        50% {
-          transform: scale(3) rotate(180deg);
-          opacity: 1;
-          box-shadow: 0 0 60px rgba(255, 255, 255, 1);
-        }
-        100% {
-          transform: scale(1) rotate(360deg);
-          opacity: 0;
-        }
-      }
-
-      /* 虹の波動 */
-      .rainbow-wave-container {
-        width: 100%;
-        height: 100%;
-      }
-
-      .rainbow-wave {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border: 2px solid transparent;
-        border-radius: 50%;
-        background: linear-gradient(white, white) padding-box,
-                    conic-gradient(#ff4757, #ffa502, #2ed573, #1e90ff, #a742d8, #ff4757) border-box;
-      }
-
-      .rainbow-wave-1 {
-        animation: wave-expand-simple 1.2s ease-out 0.2s;
-      }
-
-      .rainbow-wave-2 {
-        animation: wave-expand-simple 1.2s ease-out 0.4s;
-      }
-
-      .rainbow-wave-3 {
-        animation: wave-expand-simple 1.2s ease-out 0.6s;
-      }
-
-      @keyframes wave-expand-simple {
-        0% {
-          width: 60px;
-          height: 60px;
-          opacity: 0.8;
-        }
-        100% {
-          width: 400px;
-          height: 400px;
-          opacity: 0;
-        }
-      }
-
-      /* きらきらパーティクル */
-      .sparkle-container {
-        width: 100%;
-        height: 100%;
-      }
-
-      .sparkle {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        background: white;
-        border-radius: 50%;
-        animation: sparkle-twinkle 1.2s ease-in-out;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-      }
-
-      .sparkle-1 { top: 30%; left: 70%; animation-delay: 0.1s; }
-      .sparkle-2 { top: 70%; left: 30%; animation-delay: 0.3s; }
-      .sparkle-3 { top: 20%; left: 50%; animation-delay: 0.5s; }
-      .sparkle-4 { top: 80%; left: 60%; animation-delay: 0.7s; }
-      .sparkle-5 { top: 40%; left: 20%; animation-delay: 0.2s; }
-      .sparkle-6 { top: 60%; left: 80%; animation-delay: 0.4s; }
-
-      @keyframes sparkle-twinkle {
-        0%, 100% {
-          transform: scale(0);
-          opacity: 0;
-        }
-        50% {
-          transform: scale(1.5);
-          opacity: 1;
-          box-shadow: 0 0 20px rgba(255, 255, 255, 1);
-        }
-      }
     </style>
     <script>
       // ページ読み込み前にテーマを適用してチラつきを防ぐ

@@ -32,7 +32,6 @@ const GameApp: React.FC = () => {
   const [timeBonusFeedback, setTimeBonusFeedback] = useState<{ amount: number; count: number } | null>(null);
   const [comboEffectTrigger, setComboEffectTrigger] = useState<number | null>(null);
   const [comboKey, setComboKey] = useState(0);
-  const [rainbowFeedback, setRainbowFeedback] = useState(false);
 
   const nextLevelThreshold = LEVEL_THRESHOLDS[level - 1];
 
@@ -108,13 +107,6 @@ const GameApp: React.FC = () => {
       setComboEffectTrigger(cellCount);
       setComboKey(prev => prev + 1); // 新しいコンボキーを生成
     }
-  }, []);
-
-  const handleRainbowActivated = useCallback(() => {
-    setTimeout(() => {
-      setRainbowFeedback(true);
-      setTimeout(() => setRainbowFeedback(false), 550);
-    }, 300);
   }, []);
 
   const handleGameStart = useCallback(() => {
@@ -253,20 +245,10 @@ const GameApp: React.FC = () => {
               </div>
             </div>
 
-            {/* ワイルドカード発動フィードバック */}
-            {rainbowFeedback && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
-                  <span className="text-xl font-bold">✨ Refresh!</span>
-                </div>
-              </div>
-            )}
-
             <GameBoard
               key={gameKey}
               onAddScore={handleAddScore}
               onGameStart={handleGameStart}
-              onRainbowActivated={handleRainbowActivated}
             />
             {gameState === 'gameOver' && (
               <GameEndScreen

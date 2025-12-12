@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { NumberCell } from './NumberCell';
 import { FloatingScoreDisplay } from './FloatingScore';
 import { SelectionLine } from './SelectionLine';
-import { RainbowRefreshEffect } from './RainbowRefreshEffect';
 import { CellData, Position, FloatingScore } from '../types';
-import { GRID_SIZE, SEQUENCE, WEIGHTED_NUMBERS, HINT_TIMEOUT, NUMBER_COLORS, RAINBOW_TURN_THRESHOLD, RAINBOW_GENERATION_PROBABILITY, RAINBOW_REFRESH_PROBABILITY } from '../constants';
+import { GRID_SIZE, SEQUENCE, WEIGHTED_NUMBERS, HINT_TIMEOUT, NUMBER_COLORS, RAINBOW_TURN_THRESHOLD, RAINBOW_GENERATION_PROBABILITY } from '../constants';
 
 // Require the pointer to get close to the center of a cell before it counts as a hit
 const CELL_HIT_RADIUS_RATIO = 0.46;
@@ -12,7 +11,6 @@ const CELL_HIT_RADIUS_RATIO = 0.46;
 interface GameBoardProps {
   onAddScore: (score: number, cellCount: number) => void;
   onGameStart: () => void;
-  onRainbowActivated?: () => void;
 }
 
 const generateInitialGrid = (): CellData[][] => {
@@ -61,16 +59,13 @@ const getSequenceValueForSelection = (pos: Position, index: number, grid: CellDa
   return cell.isRainbow ? expectedValue : cell.value;
 };
 
-export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, onRainbowActivated }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart }) => {
   const [grid, setGrid] = useState<CellData[][]>(generateInitialGrid);
   const [selectedCells, setSelectedCells] = useState<Position[]>([]);
   const [isSelecting, setIsSelecting] = useState(false);
   const [hintedCells, setHintedCells] = useState<Set<string>>(new Set());
   const [floatingScores, setFloatingScores] = useState<FloatingScore[]>([]);
   const [totalMoveCount, setTotalMoveCount] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showRainbowEffect, setShowRainbowEffect] = useState(false);
-  const [rainbowTriggerPosition, setRainbowTriggerPosition] = useState<{ x: number; y: number } | null>(null);
   const hintTimer = useRef<number | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
 
@@ -166,45 +161,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
     return () => resetHintTimer();
   }, [selectedCells, grid, startHintTimer, resetHintTimer]);
 
-  // 盤面をリフレッシュする関数
-  const refreshBoard = useCallback((rainbowPosition?: Position) => {
-    // レインボーセルの画面座標を計算
-    if (rainbowPosition && boardRef.current) {
-      const rect = boardRef.current.getBoundingClientRect();
-      const cellSize = rect.width / GRID_SIZE;
-      const x = rect.left + (rainbowPosition.col + 0.5) * cellSize;
-      const y = rect.top + (rainbowPosition.row + 0.5) * cellSize;
-      setRainbowTriggerPosition({ x, y });
-    }
-
-    setShowRainbowEffect(true);
-    setIsRefreshing(true);
-
-    // レインボーエフェクトの完了を待ってから盤面を更新
-    setTimeout(() => {
-      setGrid(() => {
-        const newGrid = generateInitialGrid();
-        // レインボーセルをランダムな位置に1つ配置
-        const randomRow = Math.floor(Math.random() * GRID_SIZE);
-        const randomCol = Math.floor(Math.random() * GRID_SIZE);
-        newGrid[randomRow][randomCol] = {
-          ...newGrid[randomRow][randomCol],
-          isRainbow: true,
-          value: SEQUENCE[Math.floor(Math.random() * SEQUENCE.length)] // ランダムな数字として表示
-        };
-        return newGrid;
-      });
-      setIsRefreshing(false);
-      onRainbowActivated?.();
-    }, 700); // エフェクトのタイミングに合わせて短縮
-  }, [onRainbowActivated]);
-
-  // レインボーエフェクト完了ハンドラー
-  const handleRainbowEffectComplete = useCallback(() => {
-    setShowRainbowEffect(false);
-    setRainbowTriggerPosition(null);
-  }, []);
-
   // レインボーセルを生成する関数
   const createRainbowCell = useCallback((position: Position) => {
     setGrid(prev => {
@@ -228,9 +184,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
 
       // レインボーセルはシーケンス上の期待値として評価する
       const score = selectionValues.reduce((prod, value) => prod * value, 1);
-
-      // レインボーセルが含まれているかチェック
-      const hasRainbowCell = selectedCells.some(pos => grid[pos.row][pos.col].isRainbow);
 
       onAddScore(score, selectedCells.length);
 
@@ -262,19 +215,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
 
         return newMoveCount;
       });
-
-      // レインボーセルが使用された場合、盤面リフレッシュの可能性
-      if (hasRainbowCell && Math.random() < RAINBOW_REFRESH_PROBABILITY) {
-        // レインボーセルの位置を取得
-        const rainbowCellPosition = selectedCells.find(pos => {
-          const cell = grid[pos.row][pos.col];
-          return cell.isRainbow;
-        });
-
-        setTimeout(() => {
-          refreshBoard(rainbowCellPosition);
-        }, 800);
-      }
 
       const lastPos = selectedCells[selectedCells.length - 1];
       setFloatingScores(f => [...f, { id: Date.now(), value: score, position: lastPos }]);
@@ -396,19 +336,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onAddScore, onGameStart, o
 
   const boardClasses = [
     'relative', 'grid', 'p-1', 'md:p-2', 'rounded-lg',
-    'shadow-lg', 'touch-none',
-    isRefreshing ? 'board-refresh-animation' : ''
+    'shadow-lg', 'touch-none'
   ].filter(Boolean);
 
   return (
     <div className="flex flex-col items-center">
-      {/* レインボーリフレッシュエフェクト */}
-      <RainbowRefreshEffect
-        isActive={showRainbowEffect}
-        triggerPosition={rainbowTriggerPosition}
-        onComplete={handleRainbowEffectComplete}
-      />
-
       <div
         ref={boardRef}
         className={boardClasses.join(' ')}
